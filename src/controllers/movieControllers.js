@@ -48,7 +48,7 @@ const getMovieById = (req, res) => {
       if (movies[0] != null) {
         res.json(movies[0]);
       } else {
-        res.sendStatus(404);
+        res.status(404).json("Not Found");
       }
     })
     .catch((err) => {

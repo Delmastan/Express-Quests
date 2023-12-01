@@ -161,3 +161,35 @@ describe("PUT /api/movies/:id", () => {
     expect(response.status).toEqual(404);
   });
 });
+
+describe("DELETE /api/movies/:id", () => {
+  it("should delete a movie", async () => {
+    const newMovie = {
+      title: "Dragon Ball Evolution",
+      director: "James Wong",
+      year: "2009",
+      color: "1",
+      duration: 100,
+    };
+
+    const response = await request(app).post("/api/movies").send(newMovie);
+
+    expect(response.status).toEqual(201);
+    expect(response.body).toHaveProperty("id");
+
+    const id = response.body.id;
+
+    const result = await request(app).delete(`/api/movies/${id}`);
+
+    expect(result.status).toEqual(204);
+
+    const movie = await request(app).get(`/api/movies/${id}`);
+
+    expect(movie.status).toEqual(404);
+  });
+  it("should return an error", async () => {
+    const result = await request(app).delete(`/api/movies/0`);
+
+    expect(result.status).toEqual(404);
+  });
+});

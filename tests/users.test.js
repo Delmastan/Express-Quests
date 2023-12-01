@@ -74,7 +74,7 @@ describe("POST /api/users", () => {
       .post("/api/users")
       .send(userWithMissingProps);
 
-    expect(response.status).toEqual(500);
+    expect(response.status).toEqual(422);
   });
 });
 
@@ -83,7 +83,7 @@ describe("PUT /api/users/:id", () => {
     const newUser = {
       firstname: "Harry",
       lastname: "Roselmack",
-      email: "harry.roselmack@exemple.com",
+      email: `${crypto.randomUUID()}@wild.co`,
       city: "Paris",
       language: "French",
     };
@@ -104,7 +104,7 @@ describe("PUT /api/users/:id", () => {
     const updatedUser = {
       firstname: "Johnny",
       lastname: "Depp",
-      email: "jack.sparrow.du.93@exemple.com",
+      email: `${crypto.randomUUID()}@wild.co`,
       city: "Los Angeles",
       language: "English",
     };
@@ -143,7 +143,7 @@ describe("PUT /api/users/:id", () => {
       .put(`/api/users/1`)
       .send(userWithMissingProps);
 
-    expect(response.status).toEqual(500);
+    expect(response.status).toEqual(422);
   });
   it("should return no user", async () => {
     const newUser = {
@@ -157,5 +157,37 @@ describe("PUT /api/users/:id", () => {
     const response = await request(app).put("/api/users/0").send(newUser);
 
     expect(response.status).toEqual(404);
+  });
+});
+
+describe("DELETE /api/users/:id", () => {
+  it("should delete a user", async () => {
+    const newUser = {
+      firstname: "Remi",
+      lastname: "Fasol",
+      email: `${crypto.randomUUID()}@wild.co`,
+      city: "Rivendell",
+      language: "Elvish",
+    };
+
+    const response = await request(app).post("/api/users").send(newUser);
+
+    expect(response.status).toEqual(201);
+    expect(response.body).toHaveProperty("id");
+
+    const id = response.body.id;
+
+    const result = await request(app).delete(`/api/users/${id}`);
+
+    expect(result.status).toEqual(204);
+
+    const user = await request(app).get(`/api/users/${id}`);
+
+    expect(user.status).toEqual(404);
+  });
+  it("should return an error", async () => {
+    const result = await request(app).delete(`/api/users/0`);
+
+    expect(result.status).toEqual(404);
   });
 });
